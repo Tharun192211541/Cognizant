@@ -1,0 +1,19 @@
+CSS
+
+Flex box model 
+
+1. display : flex
+it is about formating the divs or elements inside a container 
+flex-direction : row | row-reverse | column | column-reverse
+it allings left to right , right to left , top to bottom or bottom to top 
+justify-content : center - movies the content to center
+                  flex-start : to the left or top
+                  flex-end : to the right or bottom
+                  space-evenly:splits the space equally including at the ends
+                  space-between: splits the space equally only for the elements no space for the ends
+                  space - around : splits equally between the elements and half space at the ends
+
+Animation : name duration type delay iterative-steps direction 
+
+type - ease-in , ease-out, steps
+directin - normal, reverse, alternate, alternate re

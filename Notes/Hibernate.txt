@@ -1,0 +1,143 @@
+Hibernate
+
+connection and setup for my sql - import the hibernate core and mysql driver dependencies
+
+words to remember - configuration -> sessionfactory -> session -> transaction
+---------------------------------------------------------------------------------------------------------------
+package com.cognizant;
+
+import Student.members;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+/**
+ * Hello world!
+ *
+ */
+public class
+App
+{
+    public static void main( String[] args )
+    {
+        members s = new members("192211541","tharun",20); // created a member class and declared fields
+        Configuration config = new Configuration(); // setup new configuration
+        config.addAnnotatedClass(members.class); // we are telling you handle that class
+        config.configure("HibernateConfig.xml"); // specify the hibernate configure class where you configure password, url, username, and driver
+        SessionFactory sf = config.buildSessionFactory(); // session is created by session factory 
+        Session session = sf.openSession(); // we will open one new session
+        Transaction transaction = session.beginTransaction(); // everything is a transaction so all the query should be writern between start and commit
+        session.persist(s); // we are pushing the value into table before it used to be save but to maintian the standards hibernated renamed it to persist
+        transaction.commit(); // save the changes 
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------
+
+Relational Mapping - how do you define the relation between two entities(tables) 
+
+@OnetoOne - one student has one id card
+
+@OnetoMany - one students has many books 
+
+both should be entity 
+when student is included in books it should be @ManyToOne
+when books are included in student it should be @OneToMany and to avoid the third table we need to mention mappedBy the object name of student in books
+
+---------------------------------------------------------------------------------------------------------------
+
+layer 1 - Controller 
+
+Controller - RestController // tells that we accept data 
+@RequestMapping("document") //localhost:8080//document - so when even document is called this will be inolved
+@GetMapping("showDocument") //localhost:8080//document/showDocument , get means just retrive data from db
+public List<document> showDocument(){
+// logic
+//return the data from service layer beacuse controller layer just acts as mediator but not performing logic
+}
+
+layer - entity
+// create a pojo for the document class and make sure it is also same in db
+if you dont want to make code big use Lombok (optional) for that you need to add dependency
+
+layer 2 - Service
+
+@Serivce
+
+@Autowired
+QuestionDao questionDao;
+
+public List<document> getAllDocuments(){
+  return QuestionDao.findall() // inbuit JpaRepo funciton
+}
+
+layer 3 - DAO 
+
+@Repository
+
+public interface QuestionDao extends JpaRepository<db name,type of primary key>{} // it take care of all the operations like CURD
+
+
+---------------------------------------------------------------------------------------------------------------
+
+get data by categoty
+
+layer - controller
+
+
+@GetMapping("category/{category}") // if more than one then we will use @RequestParam for each parameter
+pub lis<> getByCategory(@PathVariable String category) // here we are assigning the value in category field in getMapping also we use the same as parameter but to tell that both are same or assing the value we use @PathVariable
+
+// same as before just call the service method
+
+layer 2 - Service
+
+@Serivce
+
+@Autowired
+QuestionDao questionDao;
+
+public List<document> getAllDocuments(String cat){
+  return QuestionDao.findByCategory(cat) // inbuit JpaRepo funciton
+}
+
+layer 3 - DAO 
+
+@Repository
+
+public interface QuestionDao extends JpaRepository<db name,type of primary key>{}
+
+List<document> findByCateogry(String category) // here we have findById inbuilt but we need to find by other things then just define function then it will take care
+
+---------------------------------------------------------------------------------------------------------------
+
+add data
+
+Controller layer same - method name changes also send parameter
+
+service layer
+
+public voud addQuestion(@RequestBody Question question)
+QuestionDao.save(question)
+
+---------------------------------------------------------------------------------------------------------------
+
+Handling Errors
+
+instead of sending just data alone we will send the data along with the status code 
+
+so the type will be ResponseEntity<>(data,code)
+
+
+
+
+
+
+
+
+
+
+
+
+

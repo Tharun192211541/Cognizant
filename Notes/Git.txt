@@ -1,0 +1,93 @@
+Git
+
+git configure --global user.name ""
+git configure --global user.email ""
+
+git configure --list 
+
+git --version 
+
+Remote - [Github]
+Local - [laptop]
+
+1. git clone "link" - to make a copy from remote (github) to local (our machine)
+2. Stages in Git : 
+       a. Modified - if any file cloned is modified but not added and commited then it shows modified
+       b. Untracked - if any file is added in the repo but not added and commited the it shows untracked
+          1. git add filename - to add a file in the git even if you modify then you need to add again
+                git add . - to add all the files
+          2. git commit -m "message" to commit the file with a message
+             Note - now you have made the changes locally but for remote you need to push
+          3. git push origin main - to push the files into github
+        c. Staged - added but not commited
+git init - to create a new repo in git
+
+
+Branches - 
+
+git branch - displays all branches in that repo
+git branch -M name - renames the current branch 
+git checkout branchname - moves to that brach
+git branch -b name - creates new branch
+git branch -d name - deletes branch
+
+for getting only one branch from entire repo
+
+git clone --branch master --single-branch origin
+          
+Merge 
+
+1 - PR Using the Pull request we can modify the changes in github web
+
+2. using bash - git diff anotherBranch 
+   **Here it shows all the difference between the both files**
+   so if wanted to merge the changes when conflict arives then use 
+   git merge anotherBranch
+
+Undoing Changes 
+
+case 1 - added but not commited 
+
+git reset fileName - reset the change in that particualr file 
+git reset - reset the changes from multiple files 
+
+case 2 - commited change 
+
+git reset HEAD ~1 - it undos 1 change 
+
+case 3 - go to history (use git log for your commands ) and get that change then 
+
+git reset (hash code - check in log for code) - it applies the change in repo remotly
+git reset --hard (hash code) - it applies locally too
+
+fork - get the complete repo from others and put it in users can do it from web only
+
+Git Commands Cheat Sheet
+----------------------------------------
+git init - Initialize a new Git repository.
+git clone <url> - Clone a remote repository.
+git status - Show working directory status.
+git add <file> - Add file to staging.
+git add . - Add all changes.
+git commit -m 'message' - Commit staged changes.
+git log --oneline - View compact commit history.
+git branch - List branches.
+git branch <name> - Create branch.
+git checkout <branch> - Switch branch.
+git checkout -b <branch> - Create & switch.
+git merge <branch> - Merge branch.
+git pull origin main - Fetch + merge.
+git push origin main - Push commits.
+git remote -v - Show remotes.
+git fetch - Get remote changes without merging.
+git stash - Save uncommitted changes.
+git stash pop - Restore stashed changes.
+git reset <file> - Unstage file.
+git reset --hard HEAD~1 - Hard reset (dangerous).
+git revert <id> - Revert a commit safely.
+git diff - Show differences.
+git tag v1.0 - Create tag.
+git push --tags - Push tags.
+git rm <file> - Remove file and stage deletion.
+git config --list - View configuration.
+

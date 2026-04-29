@@ -1,0 +1,7 @@
+Bootstrap 
+
+Grid
+
+- predefined break points for sizes 
+xs,s,m,l,xl,xxl
+

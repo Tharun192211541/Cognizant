@@ -1,0 +1,441 @@
+JS
+
+Push - insert element at the end 
+pop - remove element fromt the end
+unshift - insert element at the begining
+shif - remove element at the begining
+indexOf - find the index of element
+---------------------------------------------------------------------------------------------------------------
+spread operator (...) - unpack the elements, like taking things from a bag
+numbers = [1,2,3,4,5]
+max = Math.max(...numbers)
+max = 5
+
+rest parameters (...) - bundles the args into an arry
+
+for example - 
+
+function sum(...nums){
+let res = 0;
+for(let num of nums){
+res=res+num
+}
+return res
+}
+const total = sum(1,2,3,4,5);
+console.log(total);
+
+-------------------------------------------------------------------------------------------------------------
+callback - it is used to perform the functions in a specific order like what to be first then next and so on....
+for example there is a function that takes 3s time and another is fast so normally the second one gets executed first so to avoid this and maintain the flow callback is used
+
+hello(hi)
+function hello(callback){
+console.log("hello")
+}
+
+function hi(){
+console.log("hi");
+}
+
+----------------------------------------------------------------------------------------------------------------
+
+forEach() - method used to iterate over the element of an array and apply a specified fucntion to each element
+element,index, array is given as args 
+
+let fruits = ["apple","banana","carrot","orange"];
+
+fruits.forEach(upperCase);
+furits.forEach(display);
+
+function upperCase(element, index, array){
+array[index] = element.toUpperCase()
+{
+
+function display(){
+console.log(element)
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+map() - it is very similar to forEach() but forEach() modifies the same array whereas map returns a new array
+
+let nums = [1,2,3,4,5,6]
+let sqrs = nums.map(square)
+
+console.log(sqrs);
+
+function square(element){
+return Math.pow(element,2);
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+filter() - it return only the elements that satisfy the given condition 
+
+let nums = [1,2,3,4,5,6]
+let even = nums.filter(evennums)
+
+console.log(even)
+
+function evennums(element){
+return element%2===0;
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+reduce() - it works in a way reduce the elements of an array to a single value 
+
+sum(1,2,3,4,5) - sum(3,3,4,5) - sum(6,4,5) - sum(10,5) - 15
+
+code : - 
+
+let nums = [1,2,3,4,5,6,7];
+const sum = nums.reduce(sumfun)
+
+console.log(sum)
+
+function sumfun(accumulator , element){
+return accumulator+element
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+Functions -
+
+Normal 
+
+fuction hello() {
+console.log("Hey this is tharun");
+}
+
+Arrow Function 
+
+hello = () => {
+console.log("Hey");
+}
+hello();
+
+------------------------------------------------------------------------------------------------------------------
+This Keyword and Object 
+
+In js Object is like key:value pair it stores variables, names , also functions 
+
+const person = {
+name : "Tharun",
+age : 21,
+habbits : function() {console.log(`${this.name} likes to sleep`)}
+}
+this means reffering to data in that object 
+Note : this keyword does't work for arrow function 
+
+------------------------------------------------------------------------------------------------------------------
+Class  **for creating obects** 
+
+class product {
+      constructor(name ,price){
+            this.name = name;
+            this.price = price;
+
+}
+display product(){
+console.log(`name : ${this.name$}`);
+console.log(`price : $${this.price.tofixed(2)}`);
+}
+}
+const prod1 = new product("shirt",10);
+
+const prod2 = new product("Pant",15);
+
+
+------------------------------------------------------------------------------------------------------------------
+***Static - Any thing that is defined static belongs to class itself rather than the objects means static element can be called without creating the object 
+
+class Users{
+            static usercount=0;
+            constructor(name){
+                this.name = name;
+                Users.usercount++;
+            }
+        }
+        const user1 = new Users("Tharun");
+        const user2 = new Users("Tharun");
+        console.log(user1.name);
+        console.log(Users.usercount);
+In this scenario count is not everytime created when object is created instead we are using it to count number of objects.
+
+------------------------------------------------------------------------------------------------------------------
+
+Super keyword - it is used to invoke the constructor or to get the properties of parents 
+
+prototype methods 
+
+there are used inside class 
+
+class Animal(){
+speak() {console.log(this animal speaks)};
+
+**Getters and **Setters
+
+class Person {
+            constructor(fname,lname,age){
+                this.fname = fname;
+                this.lname = lname;
+                this.age = age;
+            }
+            set fname(firstName){
+                this._fname = firstName;
+            }
+            set lname(lastName){
+                this._lname = lastName;
+            }
+            set age(newAge){
+                const n = Number(newAge);
+                if(n>0){
+                this._age = n;
+                }
+                else{
+                    console.error("Age cant be a negative number");
+                }
+            }
+            get fname(){
+                return this._fname;
+            }
+            get lname(){
+                return this._lname;
+            }
+            get age(){
+                return this._age;
+            }
+        }
+        const obj = new Person("Tharun","kumar",10);
+        console.log(obj.age)
+
+
+------------------------------------------------------------------------------------------------------------------
+
+**Destructuring**
+
+//swaping
+        let a = 10;
+        let b= 20;
+        [a,b] = [b,a];
+        console.log(`${a} and ${b}`);
+
+        //arrays
+        let arr = [1,2,3,4,5,6]
+        let [i1,i2,i3,i4] = arr;
+        console.log(i3);
+        [arr[0],arr[4]] = [arr[4],arr[0]];
+        console.log(arr);
+
+        //objects
+        const person1 = {
+            name : "Tharun",
+            Age : 21,
+            education : "B.Tech",
+            job : "IT"
+
+        }
+        const {name, age, education,job = "unemployed"} = person1 //default value if null or not declared
+        console.log(name);
+
+        // Destructutre in function parameters
+
+        function display({name,age,education,job = "unemployed"}){
+            console.log(education);
+            console.log(job);
+        }
+        display(person1);
+
+------------------------------------------------------------------------------------------------------------------
+
+**Nested Object**
+
+  //Nested objects - Means object inside a object for more structre
+        class Person {
+            constructor(name,age,...address){
+                this.name = name;
+                this.age = age;
+                this.address = new Address(...address);
+            }
+          }
+        class Address{
+            constructor(street,city,country){
+                this.street = street;
+                this.city = city;
+                this.country = country;
+            }
+        }
+
+        const p1 = new Person("Tharun",21,"church street","Chittoor","India");
+        console.log(p1.address.city);
+------------------------------------------------------------------------------------------------------------------
+*** Array of Objects ***
+
+ const fruits = [{name : "apple", color: "red", price:100},
+      {name:"banana", color:"yellow", price:10},
+      {name : "grapes",color : "green", price:60}
+      ]
+
+      fruits.forEach(display);
+
+      function display(element){
+        console.log(element.name);
+
+      }
+
+      //using arrow function 
+
+      fruits.forEach(fruit => console.log(fruit.color));
+
+      //using map
+
+      const fruitNames = fruits.map(fruit => fruit.name);
+      console.log(fruitNames);
+
+      //using filter - display fruit names whose price is more than 50
+
+      const costlyFruits = fruits.filter(fruit=> fruit.price > 50);
+      console.log(costlyFruits);
+
+      //using reduce - find the fruit have max cost
+
+      const maxPirceFruit = fruits.reduce( (acc,ele) => acc.price > ele.price ? acc : ele);
+      console.log(maxPirceFruit);
+
+      console.log(fruits[0].name);
+      // add at the end - push
+
+      fruits.push({name:"orange" ,color:"orange", price: 80})
+      console.log(fruits);
+
+      //remore at the end - pop
+
+      fruits.pop();
+      console.log(fruits);
+
+      // remove from particular position
+
+      fruits.splice(1,2); // removes at position 1 and 2 
+      console.log(fruits);
+
+------------------------------------------------------------------------------------------------------------------
+
+***Sorting of objects 
+ const people = [{name:"Tharun", age:21, salary: 23000},
+        {name:"Kalyan", age:21, salary: 35000},
+        {name:"Ram", age:23, salary: 430000}
+    ]
+
+    //salary sorted in asc order
+    people.sort((a,b) => Number(a.salary)- Number(b.salary));
+  
+    
+    // age sorted in des order
+    people.sort((a,b) => b.age-a.age );
+    
+------------------------------------------------------------------------------------------------------------------
+
+**Date object 
+ const date = new Date();
+    let year = date.getFullYear();
+    let month = date.getMonth();
+    let day = date.getDay();
+    let hour = date.getHours();
+    console.log(day);
+    //similarly use setFullYear() for setting the date
+------------------------------------------------------------------------------------------------------------------
+
+** closures** - inner function can access the elements of outer fucntion and also it maintain its state
+   
+    function outer(){
+        count =0;
+    function inner(){
+        count++;
+        console.log(count);
+    }
+    return {inner};
+}
+    const counter = outer();
+    counter.inner();
+    counter.inner();
+
+------------------------------------------------------------------------------------------------------------------
+
+**ES6 module**
+
+write function , variable orbject in one js file and use it in another file
+
+html 
+
+<script type ="module" src="ind.js">
+
+ind.js 
+
+import {pi, area} from "./math.js";
+console.log(area())
+console.log(pi);
+
+math.js
+
+export const pi = Number(3.14);
+ 
+export function area(){
+    return pi*Math.pow(3,2);
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+***Try, Catch, Finally ***
+
+//try 
+        try{
+            const a = Number(window.prompt("Enter a"));
+            const b = Number(window.prompt("Enter b"));
+            console.log(a/b);
+            if(b==0){
+            throw new Error("You cant divide by zero");
+            }
+        }
+        //catch the error it is very important topic
+        catch(error){
+            console.error(error);
+        }
+        //finally - always executes
+
+        finally{
+            console.log("this is used to close files, connection, and share resource")
+        }
+        console.log("this is the end");
+
+------------------------------------------------------------------------------------------------------------------
+**Key event 
+
+ const key = document.getElementById("clock");
+       document.addEventListener("keyup",event => {
+        if(event.key=="ArrowDown")
+        console.log(event.key);
+       })
+
+------------------------------------------------------------------------------------------------------------------
+
+Display and hide 
+
+ const div = document.getElementById("container");
+      const button = document.getElementById("but");
+      console.log(button.innerText);
+
+      button.addEventListener("click",()=>{
+        if(button.innerText=="Hide" ){
+            button.innerText="Show";
+            div.style.visibility="hidden";
+            
+        }
+        else{
+            div.style.visibility="visible";
+            button.innerText="Hide";
+        }
+      })
+
+------------------------------------------------------------------------------------------------------------------

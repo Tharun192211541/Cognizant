@@ -1,0 +1,26 @@
+Angular
+
+
+Follow this structure 
+
+src/app/
+├── core/                # Singleton services (Auth, Logging, Interceptors)
+├── shared/              # Reusable items (Pipes, Directives, Common UI Buttons)
+│   ├── pipes/           # Custom formatters
+│   └── directives/      # Custom behaviors
+├── models/              # Global models (if used across many features)
+├── features/            # THE HEART: One folder per "Microservice" equivalent
+│   ├── application/     # "Application Page" logic
+│   │   ├── application.component.ts
+│   │   ├── application.service.ts
+│   │   └── application.model.ts
+│   ├── program/         # "Program Page" logic
+│   │   ├── program.component.ts
+│   │   └── program.service.ts
+│   └── todo/            # Your current "Todo" logic
+│       ├── todo.component.ts
+│       ├── todo.service.ts
+│       └── todo.model.ts
+└── app.routes.ts        # The Traffic Controller (Routing)
+
+

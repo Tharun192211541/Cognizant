@@ -1,0 +1,89 @@
+Spring Security 
+
+in spring we a user is requested then first layer will be Spring security filter which has inbuilt filters like user authentication by default and then it will go to dispatcher servlet which will take care of which component to be called. we can also customize out filters
+
+1. Create a config class
+2. Mention @Configuration and @EnableWebMVC
+3. create a bean of SecurityFilterChain with HttpSecurity object reference as parameter 
+4. define the filters as you require like session management, login authentication 
+  httpSecurity.csrf(customizer -> customizer.disable());
+        httpSecurity.authorizeHttpRequests(request -> request.anyRequest().authenticated());
+        httpSecurity.httpBasic(Customizer.withDefaults());
+        httpSecurity.sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+return the build of httpSecurity
+--------------------------*****-----------------------------------------------------------------------------------
+  @Bean
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(new BCryptPasswordEncoder());
+        return provider;
+    }
+
+
+here what actually happens is we save password using the Bycrypt encoder while saving it follows some order 
+
+The Version 
+Strength or rounds (how many times to hash - hash the hash)
+The salt - it is generated randomly. it mixes with the password and creates a hash if we don't have the salt then 
+if two users have same password (eg - abc) then the hash will be same which is not good so even the password is same the salt will give different hash
+
+and how the hashed password is checked ?
+
+DaoAuthenticationProvider this will take the user typed username from login form and the from security service we will get the details of user using that username and then from there we get the salt of that password stored in db
+now with this salt it mixes with the password typed in login page since the salt and password is same we will get same hash and hence its success and return the authorization token.
+--------------------------*****-----------------------------------------------------------------------------------
+The flow - 
+
+The Controller/Service: You receive the JSON payload (UserID and Password).
+
+The Manual Trigger: You call authenticationManager.authenticate().
+
+The Registry: Because you defined authenticationProvider as a @Bean, Spring's internal configuration (typically in your SecurityConfig) has already injected that provider into your AuthenticationManager.
+
+The Validation: The manager delegates the work to your DaoAuthenticationProvider. It uses your BCryptPasswordEncoder to verify the credentials.
+
+The Success: Once verified, the manager returns a fully populated Authentication object.
+
+The JWT Generation: Your code then takes over again, ignoring the session/cookie logic and instead passing the user details to your jwtService.generateToken().
+
+--------------------------*****-----------------------------------------------------------------------------------
+
+1. The JWT Service (The Toolkit)
+Think of this as a utility box. It doesn't "do" anything on its own; it waits for the Filter to call its methods.
+
+Generate: "Here is a username, give me a signed string."
+
+Extract: "Here is a string, tell me what username is hidden inside."
+
+Validate: "Does this string match this user, and is the clock still running (not expired)?"
+
+--------------------------*****-----------------------------------------------------------------------------------
+
+
+2. The JWT Filter (The Process)
+This is the active worker that runs on every request. It follows this logic:
+
+Check the Header: It looks for the Authorization: Bearer <token> header.
+
+Call the Service: It passes the token to jwtService.extractUserName().
+
+Check the "Guest List": Since it now has a username, it calls your UserDetailsService (the database) to get the full UserDetails (roles, permissions, etc.).
+
+Final Verification: It asks the Service: "Does this token actually belong to this user I just found in the DB?"
+
+Set the Context: If everything is perfect, it tells Spring Security: "This user is officially logged in for this specific request."
+
+--------------------------*****-----------------------------------------------------------------------------------
+
+Method Level Security. You simply put a "label" directly on top of your Controller methods.
+
+First, add @EnableMethodSecurity to your Config class.
+
+@GetMapping("/view")
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER')")
+    public String viewReport() {
+        return "Here is the report!";
+    }
+
+--------------------------*****-----------------------------------------------------------------------------------

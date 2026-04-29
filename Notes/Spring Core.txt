@@ -1,0 +1,15 @@
+Spring Core
+
+Bean -> get it from 
+        .BeanFactory
+        .ApplicationContext
+
+ApplicationContext is a superset of BeanFactory
+
+Bean - small
+Application - Big includes BeanFactory too
+
+for xml 
+
+ApplicationContext context = new classPathXmlApplicationContext(give xml path);
+

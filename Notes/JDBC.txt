@@ -1,0 +1,32 @@
+JDBC
+
+7 Steps
+
+1. import 
+2. load and register the driver
+3. create connection
+4. create statement
+5. execute the query
+6. Process the results
+7. close
+
+import java.sql.*;
+public class Demo{
+public static void main(String[] args){
+
+String url ="";
+String username="";
+String password="";
+String query="select * from Student"
+
+class.forName("com.mysql.jdbc.Driver");
+Connection con = DriverManager.getConnection(url,username,password);
+Statement st = con.createStatement();
+ResultSet rs = st.executeQuery(query);
+rs.next();
+String name = rs.getString("studentName");
+System.out.print(name);
+st.close();
+con.close();
+}
+}

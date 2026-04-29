@@ -1,0 +1,344 @@
+Java DESIGN PATTERNS
+
+SOLID principles 
+
+S - Singe Responsible - one calss should be responsible for only 1 task
+O - Open closed - once the code is writern then it should not be modified but can be implemented or extended
+L - Liskov Substitution - Subtypes must be substitutable for their base types without altering the correctness of the program.- Ostrich cannot fly, but is forced to implement fly()
+I - Interface Segregation - should not force the client to complete all the methods instead can create the small interfaces so that we can use only the required methods
+D - Dependency Inversion - High level modules should not be depended on low-level modules 
+------------------------------------------------------------------------------------------------------------------
+1. Creational Patterns (5 Patterns)
+These patterns deal with object creation mechanisms. They try to create objects in a manner suitable to the situation, rather than just instantiating objects directly using the new operator.
+
+Singleton: Ensures only one instance of a class exists (like the Bank class you wrote).
+
+Factory Method: Defines an interface for creating an object but lets subclasses decide which class to instantiate.
+
+Abstract Factory: Creates families of related objects without specifying their concrete classes.
+
+Builder: Separates the construction of a complex object from its representation.
+
+Prototype: Creates new objects by copying an existing object (cloning).
+------------------------------------------------------------------------------------------------------------------
+2. Structural Patterns (7 Patterns)
+These patterns focus on how classes and objects are composed to form larger structures. They ensure that if one part of a system changes, the entire system doesn't need to.
+
+Facade: Provides a simplified interface to a complex library or system.
+Adapter: Allows incompatible interfaces to work together (like a power plug adapter).
+Decorator: Dynamically adds behavior to an object without changing its implementation.
+
+Bridge: Decouples an abstraction from its implementation so the two can vary independently.
+
+Composite: Treats individual objects and compositions of objects uniformly (tree structures).
+
+
+
+
+Flyweight: Minimizes memory usage by sharing as much data as possible with similar objects.
+
+Proxy: Provides a placeholder for another object to control access to it.
+------------------------------------------------------------------------------------------------------------------
+3. Behavioral Patterns (11 Patterns)
+These patterns are specifically concerned with communication between objects and how responsibilities are assigned between them.
+
+Strategy: Defines a family of algorithms, encapsulates each one, and makes them interchangeable at runtime.
+Observer: A subscription mechanism to notify multiple objects about any events that happen to the object they’re observing.
+
+
+Chain of Responsibility: Passes a request along a chain of handlers.
+
+Command: Encapsulates a request as an object, allowing you to parameterize clients with different requests.
+
+Interpreter: Provides a way to evaluate language grammar or expressions.
+
+Iterator: Provides a way to access elements of a collection sequentially without exposing the underlying logic.
+
+Mediator: Restricts direct communications between objects and forces them to collaborate only via a mediator object.
+
+Memento: Allows capturing and restoring an object's internal state (undo/redo).
+
+State: Allows an object to alter its behavior when its internal state changes.
+
+
+Template Method: Defines the skeleton of an algorithm in a superclass but lets subclasses override specific steps.
+
+Visitor: Separates an algorithm from the object structure on which it operates.
+------------------------------------------------------------------------------------------------------------------
+Singleton class - Only one instance should be created and should be reffered to that object only
+It can be acheived by making constructor private
+
+step to create a singleton class
+
+
+public class A {
+    public static void main(String[] args) {
+        // You can't do: Bank b = new Bank(); // This would throw an error
+        
+        Bank obj = Bank.getInstance();
+        
+        System.out.print(obj.name);
+        Bank obj1 = Bank.getInstance();
+    }
+}
+//eager - loads when compiled the program
+class Bank {
+    String name = "tharun";
+
+    // 1. Create a private static variable to hold the single instance
+    private static Bank obj = new Bank();
+
+    // 2. Make the constructor private so no one can use 'new Bank()'
+    private Bank() { }
+
+    // 3. Provide a public static method to return the instance
+    public static Bank getInstance() {
+        return obj;
+    }
+}
+
+//lazy - saves memory does not load at compilation
+class Bank {
+    String name = "tharun";
+
+    // 1. Create a private static variable to hold the single instance
+    private static Bank obj;
+
+    // 2. Make the constructor private so no one can use 'new Bank()'
+    private Bank() { }
+
+    // 3. Provide a public static method to return the instance
+    public static Bank getInstance() {
+        if(obj==null)
+        {
+            obj = new Bank();
+        }
+        return obj;
+    }
+}
+
+
+------------------------------------------------------------------------------------------------------------------
+Factory design pattern - instead of manually writing 
+
+Bike b = new Gas() or new Petrol() 
+we write a menthod to return a new created object based on the input (gas, petrol)
+
+Use Switch-Case - You have a fixed set of types (Petrol, Diesel, Battery).
+
+public class Vehicle {
+    public static void main(String[] args) {
+        // The Factory handles the "how", the Client handles the "what"
+        Bike bike = Factory.getFuelType("Petrol");
+        
+        if (bike != null) {
+            bike.fuel();
+        } else {
+            System.out.println("Unknown fuel type.");
+        }
+    }
+}
+
+interface Bike {
+    void fuel();
+}
+
+class Battery implements Bike {
+    @Override
+    public void fuel() {
+        System.out.print("This bike uses battery");
+    }
+}
+
+class Gas implements Bike {
+    @Override
+    public void fuel() {
+        System.out.print("This bike uses Gas");
+    }
+}
+
+class Petrol implements Bike {
+    @Override
+    public void fuel() {
+        System.out.print("This bike uses Petrol");
+    }
+}
+
+class Diesel implements Bike { // Fixed spelling
+    @Override
+    public void fuel() {
+        System.out.print("This bike uses Diesel");
+    }
+}
+
+class Factory {
+    public static Bike getFuelType(String type) {
+        if (type == null || type.isEmpty()) {
+            return null;
+        }
+        // Using the yield/return within the switch
+        return switch (type) {
+            case "Gas" -> new Gas();
+            case "Petrol" -> new Petrol();
+            case "Battery" -> new Battery();
+            case "Diesel" -> new Diesel();
+            default -> null; // Crucial for compilation
+        };
+    }
+}
+
+Use Subclassing - Large, evolving systems (e.g., UI Frameworks, Logistics)
+
+public class Transport { // Only one public class per file
+    public static void main(String[] args) {
+        Factory f = new SmallParcel();
+        f.doo();
+    }
+}
+
+interface Road {
+    void delivery();
+}
+
+class Truck implements Road {
+    @Override
+    public void delivery() { // MUST be public
+        System.out.print("Your order is in Truck ");
+    }
+}
+
+class Car implements Road {
+    @Override
+    public void delivery() { // MUST be public
+        System.out.print("Your order is in Car ");
+    }
+}
+
+abstract class Factory {
+    public void doo() {
+        Road t = doDelivery(); // Fixed typo 'Raod'
+        t.delivery();
+    }
+    abstract Road doDelivery();
+}
+
+class SmallParcel extends Factory {
+    @Override
+    public Road doDelivery() {
+        return new Car();
+    }
+}
+
+class BigParcel extends Factory {
+    @Override
+    public Road doDelivery() {
+        return new Truck();
+    }
+}
+
+
+------------------------------------------------------------------------------------------------------------------
+
+Abstract Factory Method
+
+in Factory method we focus only on one product 
+
+for eaxmple one company manufactures 2 types of gpu and what if it also manufactures desktops also 
+
+we cannot go and add desktop in code beacuse it voilates open close principle so that we will create another interface and also call it
+
+// Main class
+public class Electronics {
+    public static void main(String[] args) {
+        // Use the abstract type as the reference
+        SmartHomeFactory myHome = new AppleFactory(); 
+
+        Speaker speaker = myHome.createSpeaker();
+        Light light = myHome.createLight(); // Fixed name
+
+        speaker.playMusic();
+        light.turnOnLight();
+    }
+}
+
+// Product Interfaces
+interface Speaker { void playMusic(); }
+interface Light { void turnOnLight(); }
+
+// Concrete Products
+class HomePod implements Speaker {
+    public void playMusic() { System.out.println("This is Apple Speaker"); }
+}
+class GoogleNest implements Speaker {
+    public void playMusic() { System.out.println("This is Google Speaker"); }
+}
+class Nanoleaf implements Light {
+    public void turnOnLight() { System.out.println("Apple light is turned on"); }
+}
+class PhilipsHue implements Light {
+    public void turnOnLight() { System.out.println("Google light is turned on"); }
+}
+
+// --- THE FACTORY PART ---
+
+abstract class SmartHomeFactory {
+    // You MUST add 'abstract' here since there is no method body
+    abstract Speaker createSpeaker();
+    abstract Light createLight();
+}
+
+class AppleFactory extends SmartHomeFactory {
+    @Override
+    public Speaker createSpeaker() { return new HomePod(); }
+    @Override
+    public Light createLight() { return new Nanoleaf(); }
+}
+
+class GoogleFactory extends SmartHomeFactory {
+    @Override
+    public Speaker createSpeaker() { return new GoogleNest(); }
+    @Override
+    public Light createLight() { return new PhilipsHue(); }
+}
+
+------------------------------------------------------------------------------------------------------------------
+Builder design - Sometimes its not possible to send all the parameters and also to avaoid telephonic constructors (same parameters in different order ) we use Builder design
+
+public class Mobile{
+    public static void main(String [] args){
+        Phone p = new PhoneBuilder().setColor("Red")
+        .setPrice(200)
+        .getPhone();
+        p.display();
+    }
+}
+class Phone{
+    private String color;
+    private double price;
+    Phone(String color,double price){
+        this.color = color;
+        this.price = price;
+    }
+    public void display(){
+    System.out.print("Phone [color: "+color+" ,price: "+price+" ]");
+        
+    }
+}
+class PhoneBuilder{
+    private String color;
+    private double price;
+    public PhoneBuilder setColor(String color){
+        this.color = color;
+        return this;
+    }
+    public PhoneBuilder setPrice(double price){
+        this.price = price;
+        return this;
+    }
+    
+    Phone getPhone(){
+        return new Phone(color,price);
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------
