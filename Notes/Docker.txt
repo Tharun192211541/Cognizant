@@ -1,0 +1,113 @@
+Docker: The Comprehensive Guide
+
+1. Getting Started
+Installation: Download and install Docker Desktop for Windows.
+Conceptual Shift: * Virtual Machines (The Heavy Era): Packages App + Libraries + Full Guest OS. High resource cost (GBs of RAM), slow boot times, and massive file sizes
+      .Docker Containers (The Modern Standard): Packages App + Libraries; shares the Host OS Kernel. Lightweight (MBs), starts in milliseconds, and ensures identical runs across Windows, Mac, or Linux.
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. Core Definitions
+
+Image: The blueprint. Contains all files, OS layers, and setup required to run your project.
+
+Container: The instance. The actual running product built using the blueprint (think of it like the running process).
+
+Docker Hub: The central registry to find images (e.g., MySQL, OpenJDK).
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. Essential CLI Commands
+
+docker search hello-world -displals all the searh results find the for the official one
+
+docker pull hello-world - to pull the image from remote to local
+
+docker images - shows all the available images 
+
+docker start imageId - runs the container
+
+docker ps -a - shows all the containers 
+
+docker ps    - shows the active containers
+
+docker stop containerId - stop the container 
+
+docker pause containerId  - pauses the container
+
+docker rm containerId - removes the container
+
+docker rmi imageId - removes the image
+
+docker run hello-world - pulls if not available and stars the container
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. Dockerizing a Java Project
+Docker acts as a wrapper around your project. Instead of manual CLI steps, we use a Dockerfile for automation.
+The Multi-Stage Dockerfile
+
+Using multi-stage builds allows you to build the code inside Docker without needing Maven installed on your host machine.
+
+# Stage 1: Build the application (The "Builder")
+FROM maven:3.9.6-eclipse-temurin-22 AS build
+COPY . /app
+WORKDIR /app
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run the application (The "Runner")
+FROM openjdk:22-jdk-slim
+COPY --from=build /app/target/rest-demo.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+
+Important: The .dockerignore File
+Create this in your project root to prevent unnecessary files from being copied into the image
+target/
+.git/
+.mvn/
+*.iml
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+5. Multi-Container Orchestration (Docker Compose)Used to handle communication between multiple containers (e.g., App + MySQL).docker-compose.yml
+
+version: "3.7"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8090:8090"
+    networks:
+      - my-network
+  
+  MySQL:
+    image: mysql:8.0
+    environment:
+      MYSQL_USER: Tharun
+      MYSQL_PASSWORD: 1234
+      MYSQL_DB: user
+    ports: 
+      - "3306:3306"
+    networks:
+      - my-network
+    volumes:
+      - MySQL-data:/var/lib/mysql
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  MySQL-data:
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6. Critical Technical Notes
+a. Networking: In Spring Boot application.properties, do not use localhost:3306. Use the service name defined in compose: jdbc:mysql://MySQL:3306/user.
+b. Persistence: Containers are ephemeral (temporary). If you delete a MySQL container, data vanishes unless mapped to a Volume.
+c. Port Mapping (Host:Container): The left side is your Laptop; the right side is the Container. Example: 3307:3306 lets you access the DB on your laptop via 3307 while the DB inside stays on 3306.
+d. Tagging:
+ Build with tag: docker build -t tharun/rest-demo:v1 .
+ Tag existing: docker tag <imageId> tharun/rest-demo:v1
+ Push to Hub: docker push tharun/rest-demo:v1
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+7. Execution Workflow
+1. mvn clean package (Optional if using Multi-stage Dockerfile).
+2. docker-compose up --build (Builds images and starts containers).
+3. docker-compose down (Stops and removes containers/networks).

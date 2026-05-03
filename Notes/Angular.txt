@@ -24,3 +24,230 @@ src/app/
 └── app.routes.ts        # The Traffic Controller (Routing)
 
 
+------------------------------------------------------------------------------------------------------------------
+
+Signals 
+
+1. writeable signals - directly modify the content 
+for example setting up a counter
+
+  count = signal(0);
+  
+  increment() {
+    this.count.update((c) => c + 1);
+  }
+
+we use signals because 
+here we are accessing the singal and updating it
+
+Use a signal for any variable that your HTML template depends on.
+
+A Signal is a wrapper around a value that notifies interested consumers (like the UI or other signals) whenever that value changes. It provides a reactive way to manage state, allowing Angular to perform "fine-grained" updates rather than checking the entire application for changes.
+
+2.comuted signal -> readonly it cannot be edited once declared
+  Myname = computed(() => "Tharun");
+if you use const then 
+count = signal(5);
+// This only calculates ONCE when the component loads
+const doubleCount = this.count() * 2; 
+// If count changes to 10, doubleCount stays 10. It is now out of date!
+
+3.effects
+
+create effects in constructor - used to update one or more singnals
+
+  constructor(){
+    effect(() => {
+      console.log('Effect triggered ',this.a());
+    })
+     effect(() => {
+      console.log('Effect triggered ',this.b());
+    })
+  }
+
+  a = signal(0);
+  b = signal(1);
+
+------------------------------------------------------------------------------------------------------------------
+
+control flow in Angular 
+
+@for - for looping 
+@if - for condition
+@else - else condition
+@switch - switch case
+@empty - for handling the case where data is not found
+
+------------------------------------------------------------------------------------------------------------------
+
+RxJS Module 
+
+observable - http request send data of type observable unlike other type observable is lazy it only work on subscribing. There are 3 main things to follow - 
+
+.subscribe({
+    next : (val => console.log(val)), - if data is fetched correctly then handle it
+    error : () => console.log(error) - if server throws any error then we will handle it here
+    complete : 
+
+})
+
+***1. Creation operations 
+  a. of - for creating the observable 
+
+const obs$ = of('Angular','React','Java');
+
+obs$.subscribe({
+next : val => console.log(${val}),
+complete : () => console.log("done"),
+)};
+
+  b. from - it converts almost any type to observable like arrays
+
+const users = [{id : 1, name :'Tharun'},{id : 2, name : 'raj'}];
+const use$ = from(users);
+use$.subscribe(user=>console.log($(use$.name));
+------------------------------------------------------------------------------------------------------------------
+
+***2. Pipelining and Transformation 
+
+pipe - used to transform the data received before even going to subscribe. think of it like a pipe it filters or purifies the water
+
+for example you will get the data but you need to display it in uppdercase so here you transform the data here
+
+a. map - applies the function to each value coming from observable 
+
+users$.pipe(
+map(users => user.name.toUppserCase())
+).subscribe(val => console.log(val));
+
+b. filter - filters the data that only satisfies the provided condition 
+
+for example display only the active users 
+
+users$.pipe(
+filter( user => user.status === "active")
+).subscribe(val => console.log(val));
+
+c. first - it sends the first user that satisfy the condition that means it only returns one value 
+------------------------------------------------------------------------------------------------------------------
+
+***3. Timing and control 
+
+a. interval - it is a observable that runs endlessly until is is unsubscribed 
+
+ interval(1000).subscribe(() => {
+      console.log("tick");
+    });
+prints tick for every 1sec
+
+b. since interval runs forever we can overcome it with take
+
+take - 
+
+const countdown$ = interval(1000).pipe(take(5))
+so it runs for 5 times exactly
+------------------------------------------------------------------------------------------------------------------
+
+***4. Comibnation Operators
+
+
+for binding or combining data from multiples sources ( multiple http requests)
+
+a. fork join - 
+
+for example we get some of user details like name , age from one service and height , weight , contact from another service 
+
+these fork join will merge both the values
+
+import { interval, forkJoin, of, timer } from 'rxjs';
+import { take, map } from 'rxjs/operators';
+
+const streamA$ = of('Hello'); const streamB$ = interval(1000).pipe(
+  take(3) // Emits 0, then 1, then 2, then completes.
+);
+
+forkJoin([streamA$, streamB$]).subscribe(result => {
+  console.log(result); 
+});
+
+Note : it will wait for both to complete then only provides the data 
+Array/Object output: It collects the last value from each source.
+
+b. comibneLatest - 
+
+fork join wait till last and then emit the result it will not listen to any changes
+so to overcome this we use combineLatest where it will not wait till last emits with current value and if any change detected then again call the combineLatest
+
+import { combineLatest, toObservable } from 'rxjs';
+
+searchTerm = signal(''); 
+
+categories$ = this.http.get('/api/categories');
+
+results$ = combineLatest({
+  term: toObservable(this.searchTerm),
+  categories: this.categories$
+}).subscribe(({ term, categories }) => {
+  console.log(`Searching for ${term} within ${categories.length} categories`);
+});
+
+c. concat - 
+
+it subscribes one by one in sequence only upon completion it will move to next api call
+
+const cacheData$ = of('cache Data').pipe(delay(500));
+const freshData$ = of('fresh Data').pipe(delay(100));
+
+concat(cacheData$, freshData$).subscribe(console.log)
+
+after 500ms first prints cache data and then after 1000 ms prints fresh Data
+
+d. distinctUntilChanged - it will not emit a call until it finds the new input for example 
+
+searchTerms$ = of('Rxjs','Rxjs','Angular')
+
+searchTerm$.pipe(distinctUntilChanged()).subscribe(term=> console.log("API call for: ${term}"));
+
+this means if the term is same like previour term then it will not make a api call but displays the same 
+
+for example if you search for angular and again seach for angular api call is not emmited
+
+e. debounceTime - it discards the emitted values that take less than the specified time 
+
+for example consider the search scenario if use keyupevent then it will api for every key you typed than that we give some time like 200ms or 400ms for user to type then it will dynamically change the search term 
+------------------------------------------------------------------------------------------------------------------
+
+***5. Higher-Order Mapping Operations
+
+SwitchMap - when the user types angular and then react immediately then automatically the angular request will be unsubscribed and then switches to react
+
+// 1. A signal that updates as the user types
+searchTerm = signal('');
+
+// 2. A stream that reacts to the signal
+searchResults$ = toObservable(this.searchTerm).pipe(
+  debounceTime(300),        // Wait for the user to stop typing
+  distinctUntilChanged(),   // Only search if the text actually changed
+  switchMap(term => {
+    // This inner observable is CANCELLED if 'term' changes again
+    return this.http.get<User[]>(`/api/search?q=${term}`);
+  })
+);
+
+
+----------------------------------------------------------------
+if you want to ...                   |  use this:
+----------------------------------------------------------------
+
+Wait for all APIs to finish before   | forkJoin
+showing the page.	             |
+----------------------------------------------------------------
+Get the latest from multiple inputs  | combineLatest
+(like a Search + Category filter).   |
+----------------------------------------------------------------
+Run multiple APIs and get results as | merge
+they arrive (don't wait).            |
+----------------------------------------------------------------
+Only take the result of the fastest  | race
+API.
+----------------------------------------------------------------
