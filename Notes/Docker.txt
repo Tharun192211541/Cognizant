@@ -103,7 +103,11 @@ a. Networking: In Spring Boot application.properties, do not use localhost:3306.
 b. Persistence: Containers are ephemeral (temporary). If you delete a MySQL container, data vanishes unless mapped to a Volume.
 c. Port Mapping (Host:Container): The left side is your Laptop; the right side is the Container. Example: 3307:3306 lets you access the DB on your laptop via 3307 while the DB inside stays on 3306.
 d. Tagging:
- Build with tag: docker build -t tharun/rest-demo:v1 .
+ Build with tag: docker build -t tharun/rest-demo:v1 . 
+  breakdown of tharun/rest-demo:v1
+   tharun: The Owner (Your Docker Hub ID).
+   rest-demo: The Image/Project Name.
+   v1: The Version (Tag).
  Tag existing: docker tag <imageId> tharun/rest-demo:v1
  Push to Hub: docker push tharun/rest-demo:v1
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
