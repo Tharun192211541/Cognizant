@@ -115,3 +115,5 @@ d. Tagging:
 1. mvn clean package (Optional if using Multi-stage Dockerfile).
 2. docker-compose up --build (Builds images and starts containers).
 3. docker-compose down (Stops and removes containers/networks).
+
+(Now the standard way is automating this step with CI/CID pipelines use GitHub actions to achieve that)

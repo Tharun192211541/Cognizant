@@ -1,0 +1,55 @@
+GitHub Actions
+
+why ?
+
+To automate the works like -
+
+pull_requests
+build the project
+dockerize and push into docker hub with just one request which triggers all this
+
+How ??
+
+create a repo of your project there under the actions tab 
+
+you can see all the CI and CD options like java with maven. 
+
+click on the set up workflow a yml file will be generated with name actions.yml in .GitHub/workflows
+
+a code is generated you can customize it accordingly 
+
+what we will do here 
+
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-java:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build and Push Docker Image
+      uses: mr-smithers-excellent/docker-build-push@v4
+      with:
+        image: dockerId/repo-Name
+        registry: docker.io
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+for secrets go to settings of that repo in the secrets add the values
+         
+-> final image will be pushed to your private repository in docker hub
+
+
+
