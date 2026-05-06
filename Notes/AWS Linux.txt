@@ -1,0 +1,60 @@
+AWS Linux
+
+Account Creation 
+
+1. go to amazon free tier page and create a free tier account provide all the details and also 2rs payment should be done for verifying payment details 
+- after creating account search for ec2 and launch the os after providing the details like os name, some settings 
+- then after launching you can see you instances and there find the connect option and there in ssh tab you will find the commands that need to be pasted in git bash to connect the virtual instance managed by aws locally
+
+Now you are connected to Linux os, can start practing Linux commands
+
+--------------------------------------------------------------------------------------------------------------------
+Commands
+
+1.mkdir - to create a directory
+          if a file name starts with d then it is a directory or folder
+          if a file name starts with - then it is a normal file
+          
+2.pwd - present working directory
+3.ls - to list all the files under that pwd
+4.ls -l to sort the names of files alphabetically or (ls -lr for reverse order) or (ls -lt for latest sorting) or 
+(ls -ltr for oldest files first)
+5.touch sample.txt to create a normal file 
+6.rmdir sample - it removes the directory only if it is empty else it will throw an error
+7.rm -rf sample - it is force delete
+8.rm angular.txt - it removes the angular.txt
+9.rm *.txt - removes all the text files
+10.mv - it used in 2 ways 
+     -- mv sample.txt angular.txt - changes the name sample.txt -> angular.txt
+     -- mv sample.txt angular  - moves the sample.txt into angular dir
+11.cat angular.txt - to display the data
+12.cat > angular.txt - to write the file
+13.cat >> angular.txt - to append the content to the existing data
+14.cp angular.txt sample.txt - copy data from angular.txt and write sample.txt
+15.cat angular.txt sample.txt > abc.txt - copies angular.txt , sample.txt and put it in abc.txt
+16.head angular.txt - displays first 10 lines from that file
+17.tail angular.txt - displays last 10 lines from the file 
+18.history - displays all the commands executed till now
+19.grep - global regular expression print 
+     -- grep "Tharun" angular.txt - prints all the lines that has "Tharun" in it (case sensitive)
+     -- grep -i "Tharun" angular.txt - prints all the lines that has Tharun it ignores case
+     -- grep -v "Tharun" angular.txt - prints all the lines that don't has "Tharun" in it
+     -- grep -c "Tharun" angular.txt - prints the count of number of lines that has "Tharun"
+20.vi angular.txt - it opens notes edit where you can view, edit and save the file 
+               - after executing vi it opens the file content to edit that press "i" which means insert mode 
+               - to save press "esc" and then :wq to save it
+               - to discard the changes press "esc" and then :q!
+21.sed 's/Tharun/kumar/' Linux.txt - this command substuites Tharun with kumar in Linux.txt, it just process but dont save
+22.sed -i 's/Tharun/kumar/' Linux.txt - this command saves the changes and first found word in every line 
+    - eg: hey i am Tharun kumar and my name is Tharun - hey i am Kumar Kumar and my name is Tharun
+23.sed -i 's/Tharun/kumar/g' Linux.txt - this command saves and substuites all the found words with kumar
+    - eg: hey i am Tharun kumar and my name is Tharun - hey i am Kumar Kumar and my name is Kumar
+24.sed -i '1d' Linux.txt - deletes first line from that file
+25.sed -i '2i/hey i am 2nd line' Linux.txt - writes content in second line
+26.sudo yum install git - it install the software (for aws Linux if ubuntu use apt instead of yum)
+27.zip -r abc.zip *.txt - put all the txt files into abc.zip file 
+28.unzip abc.zip - extracts the content
+29.curl http://localhost:8081/programs - used for testing the api and endpoints
+30. File permissions 
+    0 - NoPerission 1 - Execute 2 - write 4 - read 
+    chmod 644 Linux.txt which means user - 6 (read+write) , group - 4 (read) , others - 4 (read)

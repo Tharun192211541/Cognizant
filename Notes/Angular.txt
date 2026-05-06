@@ -82,7 +82,7 @@ control flow in Angular
 
 RxJS Module 
 
-observable - http request send data of type observable unlike other type observable is lazy it only work on subscribing. There are 3 main things to follow - 
+observable - http request send data of type observable unlike other type, observable is lazy it only work on subscribing. There are 3 main things to follow - 
 
 .subscribe({
     next : (val => console.log(val)), - if data is fetched correctly then handle it
@@ -133,7 +133,7 @@ c. first - it sends the first user that satisfy the condition that means it only
 
 ***3. Timing and control 
 
-a. interval - it is a observable that runs endlessly until is is unsubscribed 
+a. interval - it is a observable that runs endlessly until it is unsubscribed 
 
  interval(1000).subscribe(() => {
       console.log("tick");
@@ -170,13 +170,14 @@ forkJoin([streamA$, streamB$]).subscribe(result => {
   console.log(result); 
 });
 
-Note : it will wait for both to complete then only provides the data 
+Note : it will wait for both to complete then only provides the data
+if one throws error then it will stop immediately and throws the error 
 Array/Object output: It collects the last value from each source.
 
 b. comibneLatest - 
 
 fork join wait till last and then emit the result it will not listen to any changes
-so to overcome this we use combineLatest where it will not wait till last emits with current value and if any change detected then again call the combineLatest
+so to overcome this we use combineLatest where it will not wait till last, emits with current value and if any change detected then again call the combineLatest
 
 import { combineLatest, toObservable } from 'rxjs';
 
@@ -215,24 +216,6 @@ for example if you search for angular and again seach for angular api call is no
 e. debounceTime - it discards the emitted values that take less than the specified time 
 
 for example consider the search scenario if use keyupevent then it will api for every key you typed than that we give some time like 200ms or 400ms for user to type then it will dynamically change the search term 
-------------------------------------------------------------------------------------------------------------------
-
-***5. Higher-Order Mapping Operations
-
-SwitchMap - when the user types angular and then react immediately then automatically the angular request will be unsubscribed and then switches to react
-
-// 1. A signal that updates as the user types
-searchTerm = signal('');
-
-// 2. A stream that reacts to the signal
-searchResults$ = toObservable(this.searchTerm).pipe(
-  debounceTime(300),        // Wait for the user to stop typing
-  distinctUntilChanged(),   // Only search if the text actually changed
-  switchMap(term => {
-    // This inner observable is CANCELLED if 'term' changes again
-    return this.http.get<User[]>(`/api/search?q=${term}`);
-  })
-);
 
 
 ----------------------------------------------------------------
@@ -251,3 +234,125 @@ they arrive (don't wait).            |
 Only take the result of the fastest  | race
 API.
 ----------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------
+
+***5. Higher-Order Mapping Operations
+
+1. switchMap (The "Search" Operator)
+Scenario: A user types in a Bootstrap Search Input to find products.
+
+Action: The user types "App", then "Apple".
+
+Logic: As soon as "Apple" is typed, the request for "App" is aborted in the Network tab.
+
+Why: You don't want the "App" results to pop up and overwrite the "Apple" results.
+
+TypeScript
+searchControl.valueChanges.pipe(
+  debounceTime(300),
+  // switchMap cancels the previous search if the user types again
+  switchMap(term => this.http.get(`/api/products?search=${term}`))
+).subscribe(results => this.products.set(results));
+
+
+2. concatMap (The "Orderly" Operator)
+Scenario: A user clicks "Buy Now" on three different items very quickly.
+
+Action: Click (Item 1), Click (Item 2), Click (Item 3).
+
+Logic: Angular sends the request for Item 1. It waits for the server to say "Success." Then it sends Item 2. Then Item 3.
+
+Why: Database integrity. You want to ensure the first transaction is finalized before the next one starts to prevent inventory errors.
+
+TypeScript
+// A Subject that catches button clicks
+private buySubject = new Subject<Product>();
+
+this.buySubject.pipe(
+  // concatMap ensures Order #1 finishes before Order #2 starts
+  concatMap(product => this.http.post('/api/checkout', product))
+).subscribe(response => this.showSuccessToast(response));
+
+
+3. mergeMap (The "Speed" Operator)
+Scenario: A user selects 10 photos to upload for a product review.
+
+Action: User clicks "Upload All."
+
+Logic: Angular starts all 10 uploads at the exact same time.
+
+Why: Order doesn't matter here. You just want the task finished as fast as possible. If Photo #5 is small, it might finish before Photo #1. That’s fine!
+
+TypeScript
+// Assume 'files' is an array of 10 images
+from(files).pipe(
+  // mergeMap runs all uploads in parallel
+  mergeMap(file => this.uploadService.upload(file))
+).subscribe(progress => console.log('Upload finished!'));
+
+
+4. exhaustMap (The "Ignore" Operator)
+Bonus: You must know this for Bootstrap Forms!
+Scenario: A user gets impatient and "double-clicks" or "triple-clicks" a Submit button.
+
+Action: Click, Click, Click!
+
+Logic: It starts the first request and ignores every other click until the first one is 100% finished.
+
+Why: To prevent creating 3 duplicate accounts or 3 duplicate charges because of a jittery finger.
+
+TypeScript
+submitButtonClicks$.pipe(
+  // exhaustMap ignores new clicks until the current save is done
+  exhaustMap(() => this.http.post('/api/save', formData))
+).subscribe();
+
+
+------------------------------------------------------------------------------------------------------------------
+
+***6. Error Handling 
+
+**catchError will catch the error before reaching the subscribe and handle it. 
+
+Error in .subscribe(): If an error reaches the subscribe block, the Observable dies. It is finished. It will never emit again. If this was a "Search" stream, the user can type all they want, but the search will never fire again until they refresh the page.
+
+Error in catchError (inside the pipe): This allows you to intercept the error before it kills the stream. You can "fix" the error by returning a new, safe Observable (like an empty array). This keeps the stream alive.
+
+searchTerm.pipe(
+  switchMap(term => 
+    this.http.get(`/api/search?q=${term}`).pipe(
+      // Catching it INSIDE the switchMap keeps the main stream running
+      catchError(err => {
+        console.log("API failed, but I'm keeping the search alive!");
+        return of([]); // Return an empty list so the UI doesn't crash
+      })
+    )
+  )
+).subscribe(val => console.log(val));
+
+**retry - it tries to resubscribe if the api call fails
+
+this.http.get('/api/data').pipe(
+  retry(3), // If it fails, try again up to 3 times
+  catchError(err => of([])) // If it fails the 4th time, give up and return empty array
+).subscribe();
+
+
+**shareReplay - 
+
+You have a UserStats API. You want to show the "Total Sales" in the Navbar and the "Total Sales" in the Sidebar.
+
+Without shareReplay: Angular makes two separate HTTP calls to the server.
+
+With shareReplay: Angular makes one call, stores the result, and "replays" it to both components.
+
+export class DataService {
+  // We add shareReplay(1) at the end of the pipe
+  userData$ = this.http.get('/api/user/profile').pipe(
+    shareReplay(1) 
+  );
+}
+
+------------------------------------------------------------------------------------------------------------------
+

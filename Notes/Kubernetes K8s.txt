@@ -1,0 +1,10 @@
+Kubernetes K8s 
+
+Features of k8s
+
+-scalability 
+
+-high availability
+
+-Disaster recovery
+
