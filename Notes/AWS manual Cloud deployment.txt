@@ -1,0 +1,90 @@
+AWS manual Cloud deployment
+
+
+setup the ec2 instance and connect to it using git bash 
+download java using "sudo yum install java-21-amazon-corretto-devel -y"
+# Install MariaDB (the MySQL alternative for Amazon Linux)
+sudo yum install mariadb105-server -y
+
+# Start the service
+sudo systemctl start mariadb
+sudo systemctl enable MariaDB
+
+# Secure it (optional but recommended)
+# It will ask for a password; just press Enter then set a new one
+sudo mysql_secure_installation
+Create your Database
+Now, log into the database and create the "User" schema your application.yml expects:
+
+sudo mysql -u root
+
+# Inside the shell:
+CREATE DATABASE User;
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'Durg@22112003';
+FLUSH PRIVILEGES;
+EXIT;
+
+20. Get the jar file from local system into this virtual os using 
+    scp -i "C:\Users\2478207\Downloads\Linux-KeyPair.pem" "C:\Users\2478207\Project\MicroServices\Auth-service\target\Auth-Service.jar" ec2-user@ec2-15-135-236-24.ap-southeast-2.compute.amazonaws.com:/home/ec2-user/
+
+21. # Set your variables
+export DB_HOST=localhost; \
+export DB_PORT=3306; \
+export DB_NAME=User; \
+export DB_USERNAME=root; \
+export DB_PASSWORD=Durg@22112003; \
+export HIBERNATE_DDL=update; \
+export PORT=8085; \
+
+# Run the jar
+ nohup java -jar Auth-Service.jar > log.txt 2>&1 &
+
+21. test it using curl command 
+    curl -X POST http://localhost:8085/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{
+       "name": "TR Tharun Kumar",
+       "role": "MANAGER",
+       "email": "manager@example.com",
+       "phone": 9876541235,
+       "password": "Th@run123"
+     }'
+
+22. How to check the data (Inside EC2)
+To prove the user was actually saved to the disk, run this in your EC2 terminal:
+
+Bash
+# Log in to MySQL
+sudo mysql -u root -p
+enter the password
+
+# Once inside the MySQL prompt (MariaDB [(none)]>):
+USE User;
+SELECT * FROM users;
+
+23. The "Magic" Step: AWS Security Groups
+By default, AWS blocks everyone. Even if your app is running, the "door" (port) to the outside world is locked.
+
+Go to the AWS EC2 Console.
+
+Click on Instances and select yours.
+
+Click the Security tab below.
+
+Click on the Security Group link (e.g., sg-0a1b2c3d...).
+
+Click Edit inbound rules.
+
+Add this rule:
+
+Type: Custom TCP
+
+Port Range: 8085
+
+Source: 0.0.0.0/0 (This means "The whole internet")
+
+Click Save rules.
+
+24. Your live link is your Public IPv4 DNS combined with your port. You can find this in your EC2 instance summary. It will look like this:
+
+http://ec2-15-135-236-24.ap-southeast-2.compute.amazonaws.com:8085/auth/login
