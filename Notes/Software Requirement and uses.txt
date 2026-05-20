@@ -1,0 +1,10 @@
+Software Requirement and uses
+
+1. Redis - used for caching 
+
+we use cache like caffeine to store the data locally (ram) instead of calling the database everytime we store it locally for some amount of time and when user request we send data from this ram. so it is different from instance to instance and dies if app restarts. 
+
+Redis  -> it is an external server where all the instance and micro services store the data here and other service will check data is available on that server if not then make a database call
+
+caffeine - small room or shelf 
+Redis - warehouse or big Go-down

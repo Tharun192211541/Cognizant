@@ -1,0 +1,108 @@
+1. The "Before" (The Normal Way)
+File List:
+
+sample.ts
+
+sample.html
+
+sample.service.ts
+
+The Logic:
+
+TypeScript
+// sample.ts
+export class SampleComponent {
+  userName: string = '';
+
+  constructor(private service: SampleService) {}
+
+  ngOnInit() {
+    this.service.getName().subscribe(name => this.userName = name);
+  }
+}
+2. The "After" (The Store Way)
+The New File List:
+Inside your feature folder (e.g., features/user/), you now have:
+
+sample.ts (The Component)
+
+sample.html
+
+sample.service.ts (Stays the same!)
+
+user.actions.ts (New)
+
+user.reducer.ts (New)
+
+user.effects.ts (New)
+
+user.selectors.ts (New)
+
+3. The Code Conversion
+File A: user.actions.ts (The Announcements)
+TypeScript
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
+
+export const UserActions = createActionGroup({
+  source: 'User API',
+  events: {
+    'Get Name': emptyProps(),                 // The "Start" trigger
+    'Get Name Success': props<{ name: string }>(), // The "Success" data
+    'Get Name Failure': props<{ error: any }>()    // The "Error"
+  }
+});
+File B: user.effects.ts (The Worker)
+This file takes the responsibility of calling the service and subscribing away from the component.
+
+TypeScript
+export const loadNameEffect = createEffect(
+  (actions$ = inject(Actions), service = inject(SampleService)) => {
+    return actions$.pipe(
+      ofType(UserActions.getName),             // Listen for the trigger
+      switchMap(() => service.getName().pipe(  // Call the actual API
+        map(name => UserActions.getNameSuccess({ name })), // Send to Reducer
+        catchError(error => of(UserActions.getNameFailure({ error })))
+      ))
+    );
+  },
+  { functional: true }
+);
+File C: user.reducer.ts (The Data Saver)
+TypeScript
+export const userReducer = createReducer(
+  { name: '', loading: false }, // Initial state
+  on(UserActions.getName, (state) => ({ ...state, loading: true })),
+  on(UserActions.getNameSuccess, (state, { name }) => ({ 
+    ...state, 
+    name: name, 
+    loading: false 
+  }))
+);
+File D: user.selectors.ts (The Delivery)
+TypeScript
+export const selectUserFeature = createFeatureSelector<{name: string}>('user');
+export const selectUserName = createSelector(
+  selectUserFeature, 
+  (state) => state.name // Just grab the name part
+);
+4. How the sample.ts changes
+Notice how the component no longer knows about the SampleService. It only knows about the Store.
+
+The New sample.ts
+
+TypeScript
+export class SampleComponent {
+  // We use a Selector instead of a simple variable
+  userName$ = this.store.select(selectUserName); 
+
+  constructor(private store: Store) {}
+
+  ngOnInit() {
+    // We dispatch an Action instead of calling a service method
+    this.store.dispatch(UserActions.getName());
+  }
+}
+The New sample.html
+
+HTML
+<h1>Welcome, {{ userName$ | async }}</h1>
